@@ -1,0 +1,115 @@
+/**index.wxss**/
+.music {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.music-player {
+  margin: 40rpx;
+  border-radius: 50%;
+  animation: trun_around 20s linear 1s infinite;
+  position: relative;
+}
+.outside{
+  width: 600rpx;
+  height: 600rpx;
+}
+.inside{
+  width: 460rpx;
+  height: 460rpx;
+  position:absolute;
+  bottom:75rpx;
+  left:75rpx;
+  border-radius: 50%;
+}
+@keyframes trun_around{
+  0% {transform: rotate(0deg);transition:transform 0s;}
+  100% {transform: rotate(360deg);}
+}
+.music-name {
+  height:30rpx;
+  color: #aaa;
+}
+
+.control_button {
+  width:600rpx;
+  margin-top: 50px;
+  padding:0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.btns {
+  border-radius: 50%;
+  text-align: center;
+  background-color: rgb(206,206,231);
+  display:flex;
+  justify-content:center;
+  align-items: center;
+}
+.play_pause {
+  width:130rpx;
+  height:130rpx;
+}
+.pre_next {
+  width:80rpx;
+  height:80rpx;
+}
+.img_pre_next{
+  width:40%;
+  height:40%;
+}
+.img_play_pause{
+  width:30%;
+  height:30%;
+}
+.img_mode{
+  width:50%;
+  height:50%;
+}
+.progress_bar{
+  width:190px;
+  height:2px;
+  padding:0;
+  background-color: rgb(106,136,131); 
+  display:flex;
+  justify-content: flex-start;
+  align-items: stretch;
+}
+.passed_time {
+  width:10%;
+  background-color: red; 
+}
+.point{
+  width:31rpx;
+  height:31rpx;
+  margin:30rpx 0;
+  border-radius: 50%;
+  background-color: white;
+  position:relative;
+  top:-40rpx;
+}
+.time {
+  font-size:10px;
+  width:70rpx;
+  color:white;
+}
+.music_list{
+  width:100%;
+  height: 400rpx;
+  position:fixed;
+  bottom:0;
+  right:0;
+  color:black;
+  background-color: white;
+  opacity:0.8;
+  overflow: scroll;
+  display: flex;
+}
+.list_li{
+  display:block;
+  width:100%;
+  padding:20rpx;
+  border-bottom:1px dotted silver;
+}

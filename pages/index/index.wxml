@@ -1,0 +1,47 @@
+<!--index.wxml-->
+<view class="container" catchtap ="closeList">
+  <view  bindtap="bindViewTap" class="music">
+    <text class="music-name">{{songName}}</text>
+    <view class="music-player" style="{{animation_pause}}">
+      <image class="outside" src="./img/player.png"></image>
+      <image class="inside" src="http://imgcache.qq.com/music/photo/album_300/{{id_last2}}/300_albumpic_{{id}}_0.jpg" background-size="cover"></image>
+    </view>
+  </view>
+
+   <audio  src="http://ws.stream.qqmusic.qq.com//{{id}}.m4a?fromtag=46" id="myAudio"></audio>
+
+<view class="control_button">
+    <text class="time">{{passed_str}}</text>
+    <view class="progress_bar">
+    <view class="passed_time" style="width:{{bar_width}}px"></view>
+    <view bindtouchmove="mytouchmove" bindtouchstart="mytouchstart" bindtouchend="mytouchend" class="point"></view>
+    </view>
+    <text class="time">{{time_total_str}}</text>
+</view>
+
+
+  <view class="control_button">
+    <view class="btns pre_next" bindtap="modeChoose">
+    <image class="img_mode" src="{{mode.mode_img[mode.index]}}"></image>
+    </view>
+    <view class="btns pre_next pre" bindtap="audioPre">
+    <image class="img_pre_next" src="./img/pre.png"></image>
+    </view>
+    <view class="btns play_pause" bindtap="audioPlay">
+      <image class="img_play_pause" src="{{play_pause_src}}"></image>
+      </view>
+    <view class="btns pre_next next" bindtap="audioNext">
+      <image class="img_pre_next" src="./img/next.png"></image>
+    </view>
+     <view class="btns pre_next" catchtap ="showlist">
+    <image class="img_mode" src="./img/list.png"></image>
+    </view>
+   </view>
+</view>
+  <view bindtap="songChoose" style="display:{{songList_show}}" class="music_list">
+  <text class="list_li" style="text-align:center;">播放列表（{{songList.length}})</text>
+     <block wx:for="{{songList}}" wx:key="{{index}}">
+        <text data-nth="{{index}}" wx:if="{{index===current}}" class="list_li" style="background-color:silver;">{{index+1}}.{{item}}</text>
+        <text data-nth="{{index}}" wx:else="{{index===current}}"class="list_li">{{index+1}}.{{item}}</text>
+    </block>
+ </view>
