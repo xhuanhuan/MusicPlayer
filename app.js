@@ -37,23 +37,28 @@ App({
          var arr1=[]
          var arr2=[]
          var arr3=[]
+         var arr4=[]
          res.data.replace(/id:"(\d+)"/g,function($1,$2)                   {
             arr1.push($2)
          }).replace(/songName:"([^"]+)"/g,function($1,$2)                 {
             arr2.push($2)
          }).replace(/playtime:"(\d+)"/g,function($1,$2)                   {
             arr3.push($2)
+         }).replace(/albumId:"(\d+)"/g,function($1,$2)                 {
+            arr4.push($2)
          })
          var arr=[].map.call(arr1,function(item,index){
           var o={}
           o.id=item
           o.songName=arr2[index]
           o.playTime=arr3[index]
+          o.albumId=arr4[index]
           return o;
          })
          arr1=null
          arr2=null
          arr3=null
+         arr4=null
         //  console.log(arr)
          that.globalData.musicInfo=arr
          typeof id == "function" && id(that.globalData.userInfo)

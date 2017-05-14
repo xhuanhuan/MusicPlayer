@@ -4,7 +4,11 @@ var app = getApp()
 Page({
   data: {
     id: "",
+    id_last2:"",
+    imgId:"",
     songName:"",
+    Lyric:[],
+    Lyric_index:0,
     time:{},
     time_total_str:"",
     passed_str:"00:00",
@@ -62,9 +66,9 @@ Page({
     }else if(time.passed>time.total){
       time.passed=time.total
     }
-      console.log("pageX:"+e.touches[0].pageX)
-       console.log("move:"+touches.move)
-       console.log("passed time:"+time.passed)
+      // console.log("pageX:"+e.touches[0].pageX)
+      //  console.log("move:"+touches.move)
+      //  console.log("passed time:"+time.passed)
        this.setData({
           touches:touches,
           time:time,
@@ -75,6 +79,18 @@ Page({
     //console.log(e.touches[0])
   },
   mytouchend:function(){
+    var Lyric=this.data.Lyric
+    // var Lyric_index=this.data.index
+    var time=this.data.time
+    var that=this
+    Lyric.forEach(function(item,index){
+      if(index<Lyric.length-1&&item.time<=time.passed&&Lyric[index+1].time>time.passed){
+        console.log(index)
+        that.setData({
+          Lyric_index:index
+        })
+      }
+    })
     this.audiopassed()
   },
 
@@ -94,10 +110,11 @@ Page({
       var songList=app.globalData.musicInfo.map(function(item){
         return item.songName
       })
-      console.log(songList)
+      // console.log(songList)
       that.setData({
         id:app.globalData.musicInfo[that.data.current].id,
-        id_last2:app.globalData.musicInfo[that.data.current].id%100,
+        imgId:app.globalData.musicInfo[that.data.current].albumId,
+        id_last2:app.globalData.musicInfo[that.data.current].albumId%100,
         songName:app.globalData.musicInfo[that.data.current].songName,
         time:{
           passed:0,
@@ -106,22 +123,11 @@ Page({
         songList:songList,
         time_total_str:that.getTimeStr(total)
       })
+      //  console.log('last2:'+that.data.id_last2)
+      //  console.log('id:'+that.data.id%100)
+      //获取歌词
+      that.setLyricSRC(that.data.id)
     })
-
-//获取歌词
-    // wx.request({
-    //   url: 'http://music.qq.com/miniportal/static/lyric/8/1913708.xml', 
-    //   data: "",
-    //   header: {
-    //     'content-type': 'application/json'
-    //   },
-    //   success: function(res) {
-    //    console.log(res.data)
-    //   },
-    //   fail: function(err){
-    //     console.log(err)
-    //   }
-    // })
 
 
   },
@@ -130,6 +136,49 @@ Page({
     // 使用 wx.createAudioContext 获取 audio 上下文 context
      this.audioCtx = wx.createAudioContext('myAudio')
     // this.audioCtx.setSrc("http://ws.stream.qqmusic.qq.com//"+this.data.id+".m4a?fromtag=46")
+  },
+  setLyricSRC:function(id){
+    var srcUrl='https://music.qq.com/miniportal/static/lyric/'+id%100+'/'+id+'.xml'
+    var that=this
+    wx.request({
+      url: srcUrl, 
+      data: "",
+      header: {
+        'content-type': 'application/json'
+      },
+      success: function(res) {
+        var Lyric=that.data.Lyric
+        var data=res.data
+         console.log(res)
+         if(res.statusCode>='200'&&res.statusCode<='300'){
+            data.replace(/(\d+):(\d+).\d+]([\u4e00-\u9fa5\s：《》]+)/g,function($1,$2,$3,$4){
+            var o={}
+            o.time=parseInt($2)*60+parseInt($3)
+            o.Lyric=$4
+            if(Lyric.length>0&&(Lyric[Lyric.length-1].time==o.time)){
+               Lyric[Lyric.length-1].Lyric=Lyric[Lyric.length-1].Lyric+" "+o.Lyric
+            }else{
+               Lyric.push(o)
+            }
+          })
+      //  console.log(Lyric)
+         that.setData({
+           Lyric:Lyric
+          })
+         }else{
+           that.setData({
+           Lyric:[{
+             time:0,
+             Lyric:'未查询到歌词'
+           }]
+          })
+         }
+       
+      },
+      fail: function(){
+        console.log('没有查询到歌词')
+      }
+    })
   },
    audioPlay: function () {
      this.setData({
@@ -156,18 +205,29 @@ Page({
         })
      }else{
         this.audioCtx.play() 
+        var Lyric=that.data.Lyric
         this.setData({
           timer:setInterval(function(){
           var time=that.data.time
-         // console.log(time)
-         // console.log(that.data.bar_width)
+          var Lyric_index=that.data.Lyric_index
           if(time.passed<time.total-1){
             time.passed+=1
-            that.setData({
-              time:time,
-              passed_str:that.getTimeStr(time.passed),
-              bar_width:190*(time.passed)/time.total
+            // console.log(Lyric[Lyric_index+1])
+            if(Lyric_index<Lyric.length-1&&(Lyric[Lyric_index+1].time===time.passed)){
+              that.setData({
+                Lyric_index:Lyric_index+1,
+                time:time,
+                passed_str:that.getTimeStr(time.passed),
+                bar_width:190*(time.passed)/time.total
             })
+            }else{
+              that.setData({
+                time:time,
+                passed_str:that.getTimeStr(time.passed),
+                bar_width:190*(time.passed)/time.total
+            })
+            }
+      
           }else{
             clearInterval(that.data.timer)
              that.setData({
@@ -194,25 +254,29 @@ Page({
       current=parseInt(Math.random()*100)
     }
   this.setData({
+    Lyric:[],
+    Lyric_index:0,
     current:current,
     pause:true,
     play_pause_src:'./img/play.png',
     id:app.globalData.musicInfo[current].id,
-    id_last2:app.globalData.musicInfo[current].id%100,
+    imgId:app.globalData.musicInfo[current].albumId,
+    id_last2:app.globalData.musicInfo[current].albumId%100,
     songName:app.globalData.musicInfo[current].songName, 
     time:{
           passed:0,
           total:parseInt(app.globalData.musicInfo[current].playTime)
         },
-        bar_width:0,
-        passed_str:"00:00",
-        timer:null,
-        time_total_str:this.getTimeStr(parseInt(app.globalData.musicInfo[current].playTime)),
+     bar_width:0,
+     passed_str:"00:00",
+     timer:null,
+     time_total_str:this.getTimeStr(parseInt(app.globalData.musicInfo[current].playTime)),
     animation_pause:'animation-play-state:running'
   })
   this.audioCtx.seek(0)
   var that=this;
    setTimeout(function(){that.audioPlay()},300)
+   this.setLyricSRC(this.data.id)
   },
 
   audioPre: function () {
@@ -224,25 +288,29 @@ Page({
       current=parseInt(Math.random()*100)
     }
     this.setData({
+      Lyric:[],
+      Lyric_index:0,
       current:current,
       pause:true,
       play_pause_src:'./img/play.png',
       id:app.globalData.musicInfo[current].id,
-      id_last2:app.globalData.musicInfo[current].id%100,
+      imgId:app.globalData.musicInfo[current].albumId,
+      id_last2:app.globalData.musicInfo[current].albumId%100,
       songName:app.globalData.musicInfo[current].songName,
       time:{
           passed:0,
           total:parseInt(app.globalData.musicInfo[current].playTime)
         },
-        bar_width:0,
-        passed_str:"00:00",
-        timer:null,
-         time_total_str:this.getTimeStr(parseInt(app.globalData.musicInfo[current].playTime)),
+      bar_width:0,
+      passed_str:"00:00",
+      timer:null,
+      time_total_str:this.getTimeStr(parseInt(app.globalData.musicInfo[current].playTime)),
       animation_pause:'animation-play-state:running'
     })
     this.audioCtx.seek(0)
     var that=this
      setTimeout(function(){that.audioPlay()},300)
+     this.setLyricSRC(this.data.id)
   },
   getTimeStr:function(total){
       var miao=total%60
@@ -274,26 +342,30 @@ Page({
      clearInterval(this.data.timer)
     var current=e.target.dataset.nth
     this.setData({
+    Lyric:[],
+    Lyric_index:0,
     current:current,
     pause:true,
     play_pause_src:'./img/play.png',
     id:app.globalData.musicInfo[current].id,
-    id_last2:app.globalData.musicInfo[current].id%100,
+    imgId:app.globalData.musicInfo[current].albumId,
+    id_last2:app.globalData.musicInfo[current].albumId%100,
     songName:app.globalData.musicInfo[current].songName, 
     time:{
           passed:0,
           total:parseInt(app.globalData.musicInfo[current].playTime)
         },
-        bar_width:0,
-        passed_str:"00:00",
-        timer:null,
-        time_total_str:this.getTimeStr(parseInt(app.globalData.musicInfo[current].playTime)),
+    bar_width:0,
+    passed_str:"00:00",
+    timer:null,
+    time_total_str:this.getTimeStr(parseInt(app.globalData.musicInfo[current].playTime)),
     animation_pause:'animation-play-state:running',
     songList_show:"none"
   })
   this.audioCtx.seek(0)
    var that=this;
    setTimeout(function(){that.audioPlay()},300)
+   this.setLyricSRC(this.data.id)
   }
 
 })

@@ -31,7 +31,12 @@
   height:30rpx;
   color: #fff;
 }
-
+.Lyric{
+  width:70%;
+  height:60rpx;
+  text-align: center;
+  color:#fff;
+}
 .control_button {
   width:600rpx;
   margin-top: 50px;
