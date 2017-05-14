@@ -23,8 +23,12 @@ https.createServer(options,function(req, res){
 	    res2.on('data',function(chunk){
 	        returnData = chunk;//如果服务器传来的是json字符串，可以将字符串转换成json
 	        res.write(returnData);
-	           res.end();
+	        //res.end();
 	        // console.log(returnData);
+	    });
+	    res2.on('end',function(){
+ 			console.log('相应结束');
+ 			res.end();
 	    });
 	});
 	//如果有错误会输出错误
@@ -33,19 +37,6 @@ https.createServer(options,function(req, res){
 	      res.end();
 	});
 	req2.end();
-
-// 	https.get('https://music.qq.com/musicbox/shop/v3/data/hit/hit_all.js',function(req2,res2){  
-//     var html='';  
-//     req2.on('data',function(data){  
-//         html+=data;  
-//     });  
-//     req2.on('end',function(){  
-//     	returnData=html;
-//     	res.write(returnData);
-//         res.end(); 
-//     });  
-// });
- 
 
 }).listen(443);
 

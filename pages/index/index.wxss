@@ -29,7 +29,7 @@
 }
 .music-name {
   height:30rpx;
-  color: #aaa;
+  color: #fff;
 }
 
 .control_button {

@@ -27,7 +27,7 @@ App({
   getMusicInfo:function(id){
     var that=this
     wx.request({
-      url: 'https://music.qq.com/musicbox/shop/v3/data/hit/hit_all.js', 
+      url: 'https://xhuanhuan.cn', 
       data: "",
       header: {
         'content-type': 'application/json'
